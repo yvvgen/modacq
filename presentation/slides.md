@@ -94,7 +94,7 @@ $\texttt{stree\_traffic, tram}\rbrace$
 
 - **Villes** : Barcelone, Lisbonne, Paris, Stockholm, Vienne, Prague, Lyon, Helsinki, Londres, Milan
 
-- **MODAC** : $\textbf{m} = \lbrace a,b,c,s_1, \dots , s_{11}\rbrace$
+- **MODAC** : $\textbf{m} = \lbrace a,b,c,s_1, s_2 , s_3\rbrace$
 ---
 
 
@@ -104,7 +104,7 @@ $\texttt{stree\_traffic, tram}\rbrace$
 - MODAC : $\textbf{m} = \lbrace a,b,c,s_j\rbrace$
 
 - $\textbf{X} = \lbrace x_{m_n}^{n} \; , \; n \in \lbrace 1 , \dots, N \rbrace \rbrace$ avec $m_n \in \textbf{m}$ la modac du $n$-ème fichier audio.
-- $\textbf{y}  = \lbrace y^{(n)}, n \in \lbrace 1, \dots, N \rbrace \rbrace$ avec $y^{(n)} \in [0,1]^{N_{\text{scene}}}$ le vecteur de probabilités de la classe de $x_{m_n}^{n}$ : $y^{(n)}  = \left[ 0.01, \dots, \underbrace{0.99}_{i}, \dots, 0.01 \right]^T$.
+- $\textbf{y}  = \lbrace y^{(n)}, n \in \lbrace 1, \dots, N \rbrace \rbrace$ avec $y^{(n)} \in [0,1]^{N_{\text{scene}}}$ le vecteur de probabilités de la classe de $x_{m_n}^{n}$ : $y^{(n)}  = \left[ 0.01, \dots, \underbrace{0.91}_{i}, \dots, 0.01 \right]^T$.
 - On notera $c_n$ la classe de $x_{m_n}^{n}$ : $c_n = i \;(= \texttt{metro})$.
 
 ---
@@ -117,10 +117,10 @@ $\texttt{stree\_traffic, tram}\rbrace$
 | $1$ | Stockholm | $\texttt{metro\_station}$ | $a$ |
 | $2$ | Lisbonne | $\texttt{street\_traffic}$ | $s_1$ |
 | $3$ | Barcelone | $\texttt{airport}$ | $c$ |
-| $4$ | Vienne | $\texttt{stree\_pedestrian}$ | $s_6$ |
+| $4$ | Vienne | $\texttt{stree\_pedestrian}$ | $s_3$ |
 | $5$ | Londres | $\texttt{metro\_station}$ | $b$ |
 | $\;\vdots$ | $\;\;\;\;\;\;\;\;\vdots$ | $\;\;\;\;\;\;\;\;\;\;\;\;\vdots$ |  $\;\;\;\;\;\;\vdots$ |
-| $N$ | Paris | $\texttt{public\_square}$ | $s_5$ |
+| $N$ | Paris | $\texttt{public\_square}$ | $s_2$ |
 
 ---
 
@@ -134,9 +134,7 @@ MODAC prises au même moment et au même endroit :
 | $1$ | Stockholm | $\texttt{metro\_station}$ | $a$ |
 | $2$ | Stockholm |$\texttt{metro\_station}$ | $b$ |
 | $3$ | Stockholm | $\texttt{metro\_station}$ | $c$ |
-| $4$ | Stockholm | $\texttt{metro\_station}$ | $s_1$ |
-| $\;\vdots$ | $\;\;\;\;\;\;\;\;\vdots$ | $\;\;\;\;\;\;\;\;\;\;\;\;\vdots$ |  $\;\;\;\;\;\;\vdots$ |
-| $14$ | Stockholm | $\texttt{metro\_station}$ | $s_{11}$ |
+| $4, 5, 6$ | Stockholm | $\texttt{metro\_station}$ | $s_j$ |
 
 ---
 
@@ -145,7 +143,7 @@ MODAC prises au même moment et au même endroit :
 ##### Attributs de chaque fichier audio
 
 - Chaque fichier audio est converti en spectrogramme de Mel à 40 bandes.
-- Chaque spectrogramme est une image 40 $\times$ 51, c'est l'entrée du réseau de neurones : $\textbf{X} \subset \mathbb{R}^{40 \times 51}$
+- Chaque spectrogramme est une image 40 $\times$ 51, c'est l'entrée du réseau de neurones : $\textbf{X} \subset \mathcal{P}( \mathbb{R}^{40 \times 51})$
 
 ---
 
@@ -161,8 +159,8 @@ MODAC prises au même moment et au même endroit :
 - Type : Convolutional Neural Network (CNN).
 - Input $\textbf{X}$ : 40 $\times$ 51 spectrogrammes de Mel.
 - Output $\hat{\textbf{y}} = \lbrace \hat{y^{(n)}} \;,\; n \in \lbrace 1, \dots, N \rbrace  \rbrace \subset \mathbb{R}^{N_{\text{scene}}}$ : vecteurs de probabilités des classes des $x_{m_n}^{n}$.
-- Fonction d'activation : $\sigma = \text{softmax}$.
-- Prédiction : $\text{pred}(\hat{y^{(n)}}) = \underset{i \in \lbrace 1, \dots, N_{\text{scene}} \rbrace}{\arg \max} \sigma(\hat{y^{(n)}}(i))$
+<!-- - Activation : $\sigma = \text{softmax}$.
+- Prédiction : $\text{pred}(\hat{y^{(n)}}) = \underset{i \in \lbrace 1, \dots, N_{\text{scene}} \rbrace}{\arg \max} \sigma(\hat{y^{(n)}}(i))$ -->
 
 ---
 
@@ -232,7 +230,6 @@ MODAC prises au même moment et au même endroit :
 ### 1. Introduction
 #### 1.3 Apprentissage des représentations
 
->*The process of learning a representation of a dataset, such that the representation is meaningful for a given task.*
 
 **Intuition** : Le réseau de neurones apprend une représentation de l'audio qui est indépendante de la modalité d'enregistrement.
 
@@ -253,7 +250,7 @@ où $\theta$ sont les poids du modèle, $f_\theta$ est la partie du réseau qui 
 On écrit donc : 
 
 $$
-    \forall n \in n \in \lbrace 1, \dots, N \rbrace , \; \hat{y^{(n)}} = \varphi_\theta(f_\theta(x_{m_n}^{n}))
+    \forall n  \in \lbrace 1, \dots, N \rbrace , \; \hat{y^{(n)}} = \varphi_\theta(f_\theta(x_{m_n}^{n}))
 
 $$
 
@@ -324,7 +321,7 @@ Le terme de régularisation est donc :
 
 $$
 
-    \displaystyle \mathcal{L}_{\text{reg}}(x_{m_n}^n, x_{m_p}^p) = \mathbb{1}_{c_n = c_p}(x_{m_n}^n, x_{m_p}^p) \|f_\theta(x_{m_n}^n) - f_\theta(x_{m_p}^p)\|_1
+    \displaystyle \mathcal{L}_{\text{reg}}(x_{m_n}^n, x_{m_p}^p) = \mathbb{1}_{[c_n = c_p, m_n \neq m_p]}(x_{m_n}^n, x_{m_p}^p) \|f_\theta(x_{m_n}^n) - f_\theta(x_{m_p}^p)\|_1
 
 $$
 
@@ -358,11 +355,11 @@ $$
 
 ---
 
-![bg w:70%](figures/tsne_third_layer1.png)
+![bg w:75%](figures/tsne_third_layer1.png)
 
 ---
 
-![bg w:70%](figures/tsne_third_layer2.png)
+![bg w:68%](figures/tsne_third_layer2.png)
 
 ---
 
@@ -403,6 +400,8 @@ $$
 - Input :  $\displaystyle \left[ \begin{matrix}x_{m_n}^n \\ 
 x_{m_p}^p \end{matrix} \right]$ avec $p \neq n$ et $m_n \neq m_p$.
 
+- Poids partagés.
+
 - Output : $\displaystyle \begin{bmatrix}  \hat{y^{(n)}} \\
 \hat{y^{(p)}} \end{bmatrix} =  \begin{bmatrix}  \Phi_{\theta}(x_{m_n}^n) \\
 \Phi_{\theta}(x_{m_p}^p) \end{bmatrix} = \begin{bmatrix}  (\varphi_\theta \circ f_\theta)(x_{m_n}^n) \\
@@ -421,9 +420,7 @@ MODAC prises au même moment et au même endroit :
 | $1$ | Stockholm | $\texttt{metro\_station}$ | $a$ |
 | $2$ | Stockholm |$\texttt{metro\_station}$ | $b$ |
 | $3$ | Stockholm | $\texttt{metro\_station}$ | $c$ |
-| $4$ | Stockholm | $\texttt{metro\_station}$ | $s_1$ |
-| $\;\vdots$ | $\;\;\;\;\;\;\;\;\vdots$ | $\;\;\;\;\;\;\;\;\;\;\;\;\vdots$ |  $\;\;\;\;\;\;\vdots$ |
-| $14$ | Stockholm | $\texttt{metro\_station}$ | $s_{11}$ |
+| $4, 5, 6$ | Stockholm | $\texttt{metro\_station}$ | $s_j$ |
 
 ---
 
@@ -475,12 +472,8 @@ $$
 
 #### 4.1 Réseau siamois
 
-Source : [Siamese Neural Networks for One-shot Image Recognition](https://www.cs.cmu.edu/~rsalakhu/papers/oneshot1.pdf)
 
-
-![bg right:60% 95%](figures/siamese.PNG)
-
-
+![bg w:95%](figures/siamese_network.png)
 
 ---
 
@@ -496,7 +489,8 @@ $\Rightarrow$ En déduire une valeur de $\lambda$ cohérente pour l'entraînemen
 
 ### 5. Conclusion
 
-- Classification d'audio dont on soupçonne qu'elle est dépendante de la modac.
+
+- Classification de fichiers audio dont on soupçonne qu'elle est dépendante de la modac.
 - Notre analyse montre que le réseau permet de séparer les modac en fonction des scènes.
 - Il est donc cohérent de s'intéresser à la classification d'audio en fonction de la modac.
 - Le réseau siamois permet d'obtenir une représentation des données qui permet de séparer les scènes en fonction des modac.
@@ -507,7 +501,7 @@ $\Rightarrow$ En déduire une valeur de $\lambda$ cohérente pour l'entraînemen
 
 ### References
 
-1. Introduction to acoustic event and scene analysis by Keisuke Imoto
-2. A geometrically constrained deep network for CT image segmentation
-3. To Reverse The Gradient Or Not: An Empirical Comparison Of Adversarial And Multi-Task Learning In Speech Recognition
-1. Siamese Neural Networks for One-shot Image Recognition
+1. Introduction to acoustic event and scene analysis by **Keisuke Imoto**
+<!-- 2. A geometrically constrained deep network for CT image segmentation
+3. To Reverse The Gradient Or Not: An Empirical Comparison Of Adversarial And Multi-Task Learning In Speech Recognition -->
+2. Siamese Neural Networks for One-shot Image Recognition, **Gregory Koch**, **Richard Zemel**, **Ruslan Salakhutdinov**.
